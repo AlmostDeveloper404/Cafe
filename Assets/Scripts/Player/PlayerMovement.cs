@@ -3,6 +3,7 @@ using Zenject;
 using System;
 using System.Security.Cryptography;
 using System.Collections;
+using cherrydev;
 
 namespace ReaperGS
 {
@@ -37,6 +38,7 @@ namespace ReaperGS
         private PlayerInput _playerInput;
         private FPSCameraController _fpsCameraController;
         private GameManager _gameManager;
+        private DialogBehaviour _dialogueBehaiviour;
 
         public event Action<MovementState> OnStateChanged;
 
@@ -49,11 +51,12 @@ namespace ReaperGS
         private bool _isRotationFreezed = false;
 
         [Inject]
-        private void Construct(PlayerInput playerInput, FPSCameraController fpsCameraController, GameManager gameManager)
+        private void Construct(PlayerInput playerInput, FPSCameraController fpsCameraController, GameManager gameManager, DialogBehaviour dialogBehaviour)
         {
             _playerInput = playerInput;
             _fpsCameraController = fpsCameraController;
             _gameManager = gameManager;
+            _dialogueBehaiviour = dialogBehaviour;
         }
 
         private void Awake()
@@ -69,6 +72,9 @@ namespace ReaperGS
             _fpsCameraController.OnCameraRotationUpdated += RotateCharacter;
 
             _gameManager.OnNewGameStateEntered += HandleGameStates;
+
+            _dialogueBehaiviour.OnDialogueStarted += InDialogue;
+            _dialogueBehaiviour.OnDialogueFinished += OutDialogue;
         }
 
         private void OnDisable()
@@ -79,6 +85,9 @@ namespace ReaperGS
             _fpsCameraController.OnCameraRotationUpdated -= RotateCharacter;
 
             _gameManager.OnNewGameStateEntered -= HandleGameStates;
+
+            _dialogueBehaiviour.OnDialogueStarted -= InDialogue;
+            _dialogueBehaiviour.OnDialogueFinished -= OutDialogue;
         }
 
         private void Update()
@@ -91,6 +100,19 @@ namespace ReaperGS
             MovePlayer();
         }
 
+        private void InDialogue()
+        {
+            FreezeMovement(true);
+            FreezeRotation(true);
+        }
+
+        private void OutDialogue()
+        {
+            FreezeMovement(false);
+            FreezeRotation(false);
+        }
+
+
         private void HandleGameStates(GameStates gameStates)
         {
             switch (gameStates)
@@ -98,10 +120,6 @@ namespace ReaperGS
                 case GameStates.WaitForPlayerInput:
                     FreezeMovement(true);
                     FreezeRotation(true);
-                    break;
-                case GameStates.GameplayStared:
-                    FreezeMovement(false);
-                    FreezeRotation(false);
                     break;
                 case GameStates.LastCutsceneStarted:
                     FreezeMovement(true);

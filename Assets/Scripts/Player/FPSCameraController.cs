@@ -57,6 +57,8 @@ namespace ReaperGS
         private Transform _currentTarget;
         private Vector3 _target;
 
+        [SerializeField] private NPS _nps;
+
 
         [Inject]
         private void Construct(PlayerInput playerInput, GameManager gameManager, DialogBehaviour dialogBehaviour)
@@ -97,6 +99,8 @@ namespace ReaperGS
 
         private void Start()
         {
+            SetNewTarget(_nps.LookAtTargetForPlayer);
+
             Vector3 angles = _camera.transform.eulerAngles;
             _xRotation = angles.y;
             _yRotation = angles.x;
@@ -131,9 +135,6 @@ namespace ReaperGS
             {
                 case GameStates.WaitForPlayerInput:
                     StopCameraControl();
-                    break;
-                case GameStates.GameplayStared:
-                    ResumeCameraControl();
                     break;
                 case GameStates.LastCutsceneStarted:
                     StopCameraControl();
@@ -255,6 +256,9 @@ namespace ReaperGS
 
         private void ZoomIn()
         {
+            SetNewTarget(_nps.LookAtTargetForPlayer);
+            StopCameraControl();
+
             if (_zoomCoroutine != null)
             {
                 StopCoroutine(_zoomCoroutine);

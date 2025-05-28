@@ -5,7 +5,7 @@ namespace ReaperGS
 {
     public enum GameStates
     {
-        WaitForPlayerInput, DemoStarted, GameplayStared, LastCutsceneStarted
+        WaitForPlayerInput, DemoStarted, FadingIntoCutscene, LastCutsceneStarted
     }
 
     public class GameManager : MonoBehaviour

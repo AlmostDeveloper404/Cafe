@@ -25,12 +25,12 @@ namespace ReaperGS
 
         private void WaitForCap(IDragable dragable)
         {
-            _coffeeGhostCup.SetActive(dragable != null && dragable as CoffeeCap);
+            _coffeeGhostCup.SetActive(dragable != null && dragable as EmptyCup);
         }
 
         private void TryPlaceDraggable(IDragable dragable)
         {
-            CoffeeCap coffeeCap = dragable as CoffeeCap;
+            EmptyCup coffeeCap = dragable as EmptyCup;
             if (coffeeCap && coffeeCap.IsInSnapZone)
             {
                 coffeeCap.SnapToPoint(_snapPoint, _coffeeMachine.ChangeToCupInsertedState);

@@ -14,17 +14,21 @@ namespace ReaperGS
     {
         public event Action OnFadeOutAtStart;
 
+        [SerializeField] private Image _cursor;
         [SerializeField] private TMP_Text _itemName;
         [SerializeField] private TMP_Text _actionText;
         [SerializeField] private CanvasGroup _infoPanalCanvasGroup;
 
         [Header("FadingImage")]
         [field: SerializeField] public float DefaultFadeTimeMultiplier { get; private set; }
+        [SerializeField] private float _beforeCutSceneFading = 0.3f;
 
         [SerializeField] private Image _backgroundFadeImage;
         [SerializeField] private TMP_Text _pressAnyKeyToStartText;
         [SerializeField] private AnimationCurve _fadeOutCurve;
         [SerializeField] private AnimationCurve _fadeInCurve;
+
+        [SerializeField] private MoneyPopUp _moneyPopUp;
 
         private PlayerInteractions _playerInteractions;
         private GameManager _gameManager;
@@ -47,7 +51,8 @@ namespace ReaperGS
 
             _gameManager.OnNewGameStateEntered += HandleGameStates;
 
-            //_dialogueBehaiviour.OnDialogueStarted += HideInfoPanal;
+            _dialogueBehaiviour.OnDialogueStarted += HideCursorPoint;
+            _dialogueBehaiviour.OnDialogueFinished += ShowCursorPoint;
         }
 
         private void OnDisable()
@@ -57,7 +62,13 @@ namespace ReaperGS
 
             _gameManager.OnNewGameStateEntered -= HandleGameStates;
 
+            _dialogueBehaiviour.OnDialogueStarted -= HideCursorPoint;
+            _dialogueBehaiviour.OnDialogueFinished -= ShowCursorPoint;
+        }
 
+        private void Start()
+        {
+            _cursor.enabled = false;
         }
 
         private void HandleGameStates(GameStates gameStates)
@@ -68,12 +79,11 @@ namespace ReaperGS
                     _pressAnyKeyToStartText.enabled = true;
                     _playerInput.OnKeyPressed += WaitToPressKey;
                     break;
-                case GameStates.DemoStarted:
-
-                    break;
-                case GameStates.GameplayStared:
+                case GameStates.FadingIntoCutscene:
+                    FadeIn(() => _gameManager.ChangeGameState(GameStates.LastCutsceneStarted), _beforeCutSceneFading);
                     break;
                 case GameStates.LastCutsceneStarted:
+                    Debug.Log("Yep");
                     break;
                 default:
                     break;
@@ -124,6 +134,17 @@ namespace ReaperGS
             action?.Invoke();
         }
 
+        private void HideCursorPoint()
+        {
+            _cursor.enabled = false;
+            HideInfoPanal();
+        }
+
+        private void ShowCursorPoint()
+        {
+            _cursor.enabled = true;
+        }
+
         public void ShowInfoPanal(IDragable draggableInfo)
         {
             _infoPanalCanvasGroup.alpha = 1f;
@@ -131,6 +152,12 @@ namespace ReaperGS
 
             _itemName.text = draggableInfo.GetName();
             //_actionText.text = draggableInfo.GetInteractName();
+        }
+
+        public void ShowMoneyEarnedUI(Action action)
+        {
+            _moneyPopUp.Setup(2.99f);
+            action?.Invoke();
         }
 
         public void HideInfoPanal()

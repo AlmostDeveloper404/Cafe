@@ -15,11 +15,15 @@ namespace ReaperGS
     public class NPS : MonoBehaviour
     {
         [SerializeField] private DialogNodeGraph _startDialogue;
+        [SerializeField] private DialogNodeGraph _dialogueFinished;
 
         [SerializeField] private AnimationCurve _turnHeadCurve;
         [SerializeField] private float _rotateHeadDuration = 1f;
         [SerializeField] private float _walkSpeed = 2f;
         [SerializeField] private Transform _walkToPlayerPoint;
+        [SerializeField] private Transform _lastWalkPoint;
+        [SerializeField] private Transform _targetsHolder;
+        [SerializeField] private Transform _screamerStandPoint;
 
         private NavMeshAgent _navMeshAgent;
         private Animator _animator;
@@ -34,18 +38,22 @@ namespace ReaperGS
         private DialogBehaviour _dialogueBehavior;
         private FPSCameraController _fpsCameraController;
         private GameManager _gameManager;
+        private UIManager _uiManager;
 
         private Coroutine _headTurnCoroutine;
         private Coroutine _turnCoroutine;
 
+        [field: SerializeField] public Transform LookAtTargetForPlayer;
+
         [SerializeField] private Transform _trackHeadTarget;
 
         [Inject]
-        private void Construct(DialogBehaviour dialogBehaviour, FPSCameraController fPSCameraController, GameManager gameManager)
+        private void Construct(DialogBehaviour dialogBehaviour, FPSCameraController fPSCameraController, GameManager gameManager, UIManager uIManager)
         {
             _dialogueBehavior = dialogBehaviour;
             _fpsCameraController = fPSCameraController;
             _gameManager = gameManager;
+            _uiManager = uIManager;
         }
 
         private void Awake()
@@ -59,15 +67,23 @@ namespace ReaperGS
         private void OnEnable()
         {
             _gameManager.OnNewGameStateEntered += HandleGameStates;
+
+            _dialogueBehavior.OnDialogueStarted += DialogueStarted;
+            _dialogueBehavior.OnDialogueFinished += DialogueFinished;
         }
 
         private void OnDisable()
         {
             _gameManager.OnNewGameStateEntered -= HandleGameStates;
+
+            _dialogueBehavior.OnDialogueStarted -= DialogueStarted;
+            _dialogueBehavior.OnDialogueFinished -= DialogueFinished;
         }
 
         private void Start()
         {
+            _targetsHolder.parent = null;
+
             _npsIdleState = new NPSIdleState(_animator);
             ChangeState(_npsIdleState);
         }
@@ -91,9 +107,11 @@ namespace ReaperGS
                 case GameStates.DemoStarted:
                     GoToTarget(_walkToPlayerPoint, () => _dialogueBehavior.StartDialog(_startDialogue));
                     break;
-                case GameStates.GameplayStared:
+                case GameStates.FadingIntoCutscene:
+                    GoToTarget(_lastWalkPoint, null);
                     break;
                 case GameStates.LastCutsceneStarted:
+                    PlaceNPCToPoint(_screamerStandPoint);
                     break;
                 default:
                     break;
@@ -134,7 +152,6 @@ namespace ReaperGS
 
         private void DialogueStarted()
         {
-            SetLookIKTargetToDefault();
             ChangeState(_npsDialogueState);
         }
 
@@ -142,11 +159,6 @@ namespace ReaperGS
         {
             StopLooking();
             ChangeToIdle();
-        }
-
-        private void SetLookIKTargetToDefault()
-        {
-            _lookAtIK.solver.IKPosition = transform.position + transform.forward + Vector3.up * 2f;
         }
 
         public void ChangeToIdle()
@@ -183,9 +195,6 @@ namespace ReaperGS
             Vector3 directionToTarget = isTargetForward ? target.forward : target.position - transform.position;
             directionToTarget.y = 0f;
             Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
-
-            Vector3 cross = Vector3.Cross(transform.forward, directionToTarget);
-            _animator.SetTrigger(cross.y > 0 ? Animations.TurnRight : Animations.TurnLeft);
 
             float elapsedTime = 0f;
             float duration = 1f;
@@ -247,6 +256,25 @@ namespace ReaperGS
             _lookAtIK.solver.IKPositionWeight = targetWeight;
             _lookAtIK.solver.IKPosition = targetPosition;
             _trackHeadTarget.position = _lookAtIK.solver.IKPosition;
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+
+            CoffeeCup coffeeCap = collision.collider.GetComponentInParent<CoffeeCup>();
+            if (coffeeCap)
+            {
+                coffeeCap.ReturnToPool();
+                _uiManager.ShowMoneyEarnedUI(() => _dialogueBehavior.StartDialog(_dialogueFinished));
+                _dialogueBehavior.OnDialogueFinished += TriggerFadingToCutscene;
+                TurnToPlayer();
+            }
+        }
+
+        private void TriggerFadingToCutscene()
+        {
+            _dialogueBehavior.OnDialogueFinished -= TriggerFadingToCutscene;
+            _gameManager.ChangeGameState(GameStates.FadingIntoCutscene);
         }
     }
 }
