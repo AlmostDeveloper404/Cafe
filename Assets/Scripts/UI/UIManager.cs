@@ -19,12 +19,15 @@ namespace ReaperGS
         [SerializeField] private TMP_Text _actionText;
         [SerializeField] private CanvasGroup _infoPanalCanvasGroup;
 
+        [SerializeField] private GameObject _finishPanal;
+
         [Header("FadingImage")]
         [field: SerializeField] public float DefaultFadeTimeMultiplier { get; private set; }
         [SerializeField] private float _beforeCutSceneFading = 0.3f;
 
         [SerializeField] private Image _backgroundFadeImage;
         [SerializeField] private TMP_Text _pressAnyKeyToStartText;
+        [SerializeField] private TMP_Text _littlelaterText;
         [SerializeField] private AnimationCurve _fadeOutCurve;
         [SerializeField] private AnimationCurve _fadeInCurve;
 
@@ -83,7 +86,8 @@ namespace ReaperGS
                     FadeIn(() => _gameManager.ChangeGameState(GameStates.LastCutsceneStarted), _beforeCutSceneFading);
                     break;
                 case GameStates.LastCutsceneStarted:
-                    Debug.Log("Yep");
+                    _littlelaterText.enabled = true;
+                    StartCoroutine(WaitForSeconds());
                     break;
                 default:
                     break;
@@ -166,5 +170,19 @@ namespace ReaperGS
             _infoPanalCanvasGroup.blocksRaycasts = false;
         }
 
+
+        private IEnumerator WaitForSeconds()
+        {
+            yield return Helpers.Helper.GetWait(2f);
+            _littlelaterText.enabled = false;
+            FadeOut(null, 0.3f);
+        }
+
+        public void GameOverPanal()
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            _finishPanal.SetActive(true);
+        }
     }
 }

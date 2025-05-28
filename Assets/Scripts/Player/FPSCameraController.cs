@@ -5,6 +5,7 @@ using System;
 using Unity.Cinemachine;
 using System.Collections.Generic;
 using cherrydev;
+using UnityEngine.Playables;
 
 namespace ReaperGS
 {
@@ -42,7 +43,8 @@ namespace ReaperGS
         [SerializeField] private float _zoomTime;
         [SerializeField] private AnimationCurve _zoomCurve;
 
-
+        [SerializeField] private Transform _cutsceneTarget;
+        [SerializeField] private PlayableDirector _playableDirector;
 
         private Coroutine _zoomCoroutine;
         private bool _isControlFreezed = false;
@@ -138,6 +140,8 @@ namespace ReaperGS
                     break;
                 case GameStates.LastCutsceneStarted:
                     StopCameraControl();
+                    SetNewTarget(_cutsceneTarget);
+                    _playableDirector.Play();
                     break;
                 default:
                     break;
@@ -276,6 +280,15 @@ namespace ReaperGS
                 StopCoroutine(_zoomCoroutine);
             }
             _zoomCoroutine = StartCoroutine(ZoomTo(_defaultZoom));
+        }
+
+        public void Zoom(float amount)
+        {
+            if (_zoomCoroutine != null)
+            {
+                StopCoroutine(_zoomCoroutine);
+            }
+            _zoomCoroutine = StartCoroutine(ZoomTo(amount));
         }
 
         private IEnumerator ZoomTo(float targetFOV)

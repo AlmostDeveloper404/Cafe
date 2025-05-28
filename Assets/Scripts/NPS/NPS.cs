@@ -132,7 +132,8 @@ namespace ReaperGS
 
         public void PlaceNPCToPoint(Transform point)
         {
-            //_navMeshAgent.enabled = false;
+            _navMeshAgent.enabled = false;
+            _animator.SetBool(Animations.IsWalking, false);
             transform.position = point.position;
             transform.rotation = point.rotation;
             //_navMeshAgent.enabled = true;

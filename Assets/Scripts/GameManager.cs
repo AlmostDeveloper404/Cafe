@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace ReaperGS
 {
@@ -20,6 +21,16 @@ namespace ReaperGS
         public void ChangeGameState(GameStates gameStates)
         {
             OnNewGameStateEntered?.Invoke(gameStates);
+        }
+
+        public void Quit()
+        {
+            Application.Quit();
+        }
+
+        public void Restart()
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 }

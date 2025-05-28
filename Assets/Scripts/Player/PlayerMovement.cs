@@ -23,6 +23,7 @@ namespace ReaperGS
         [SerializeField] private Transform _bodyTransform;
         [SerializeField] private Transform _orientation;
         [SerializeField] private Transform _cameraTransform;
+        [SerializeField] private Transform _playerStartPoint;
 
         [Header("Movement Settings")]
         [SerializeField, Range(0f, 180f)] private float _maxTurnAngle = 80f;
@@ -90,6 +91,11 @@ namespace ReaperGS
             _dialogueBehaiviour.OnDialogueFinished -= OutDialogue;
         }
 
+        private void Start()
+        {
+            _playerStartPoint.parent = null;
+        }
+
         private void Update()
         {
             if (_isMovementFreezed) return;
@@ -124,6 +130,7 @@ namespace ReaperGS
                 case GameStates.LastCutsceneStarted:
                     FreezeMovement(true);
                     FreezeRotation(true);
+                    SetPosition(_playerStartPoint);
                     break;
                 default:
                     break;
