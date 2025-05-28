@@ -4649,6 +4649,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4ce73f99cbd15c4992a0f39b80687d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _startDialogue: {fileID: 11400000, guid: 416ce7484fceca5469e424eac3ea216a, type: 2}
   _turnHeadCurve:
     serializedVersion: 2
     m_Curve:
@@ -4675,6 +4676,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   _rotateHeadDuration: 1
   _walkSpeed: 2
+  _walkToPlayerPoint: {fileID: 0}
   _trackHeadTarget: {fileID: 0}
 --- !u!195 &1200307401424206654
 NavMeshAgent:
@@ -5284,8 +5286,8 @@ MonoBehaviour:
   fixTransforms: 1
   solver:
     executedInEditor: 0
-    IKPosition: {x: 1.0188365, y: 0.780524, z: -0.37385908}
-    IKPositionWeight: 1
+    IKPosition: {x: 1.0197784, y: 0.80705017, z: -0.37380248}
+    IKPositionWeight: 0
     root: {fileID: 1671572197350914243}
     target: {fileID: 0}
     spine:

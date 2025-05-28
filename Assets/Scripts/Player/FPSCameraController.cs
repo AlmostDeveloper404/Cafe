@@ -4,6 +4,7 @@ using Zenject;
 using System;
 using Unity.Cinemachine;
 using System.Collections.Generic;
+using cherrydev;
 
 namespace ReaperGS
 {
@@ -15,6 +16,8 @@ namespace ReaperGS
         public event Action OnCameraRotationUpdated;
 
         private PlayerInput _playerInput;
+        private GameManager _gameManager;
+        private DialogBehaviour _dialogueBehaiviour;
 
         [Header("Sensitivity")]
         public float rotationSensitivity = 3f;
@@ -56,9 +59,11 @@ namespace ReaperGS
 
 
         [Inject]
-        private void Construct(PlayerInput playerInput)
+        private void Construct(PlayerInput playerInput, GameManager gameManager, DialogBehaviour dialogBehaviour)
         {
             _playerInput = playerInput;
+            _gameManager = gameManager;
+            _dialogueBehaiviour = dialogBehaviour;
         }
 
         private void Awake()
@@ -69,11 +74,25 @@ namespace ReaperGS
         private void OnEnable()
         {
             _playerInput.OnLook += ReadLookInput;
+            _gameManager.OnNewGameStateEntered += HandleGameStates;
+
+            _dialogueBehaiviour.OnDialogueStarted += ZoomIn;
+            _dialogueBehaiviour.OnDialogueFinished += ZoomOut;
+
+            _dialogueBehaiviour.OnSentenceNodeActive += LockCursor;
+            _dialogueBehaiviour.OnAnswerNodeActive += UnlockCursor;
         }
 
         private void OnDisable()
         {
             _playerInput.OnLook -= ReadLookInput;
+            _gameManager.OnNewGameStateEntered -= HandleGameStates;
+
+            _dialogueBehaiviour.OnDialogueStarted -= ZoomIn;
+            _dialogueBehaiviour.OnDialogueFinished -= ZoomOut;
+
+            _dialogueBehaiviour.OnSentenceNodeActive -= LockCursor;
+            _dialogueBehaiviour.OnAnswerNodeActive -= UnlockCursor;
         }
 
         private void Start()
@@ -104,6 +123,24 @@ namespace ReaperGS
             }
             OnCameraUpdated?.Invoke();
             OnCameraRotationUpdated?.Invoke();
+        }
+
+        private void HandleGameStates(GameStates gameStates)
+        {
+            switch (gameStates)
+            {
+                case GameStates.WaitForPlayerInput:
+                    StopCameraControl();
+                    break;
+                case GameStates.GameplayStared:
+                    ResumeCameraControl();
+                    break;
+                case GameStates.LastCutsceneStarted:
+                    StopCameraControl();
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void GameStarted()
@@ -188,7 +225,7 @@ namespace ReaperGS
             Cursor.lockState = CursorLockMode.Locked;
         }
 
-        private void UnlockCursor()
+        private void UnlockCursor(AnswerNode answerNode)
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;

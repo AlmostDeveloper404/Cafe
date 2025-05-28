@@ -6,6 +6,7 @@ using Zenject;
 using UnityEngine.Events;
 using TMPro;
 using System.Collections.Generic;
+using cherrydev;
 
 namespace ReaperGS
 {
@@ -21,32 +22,70 @@ namespace ReaperGS
         [field: SerializeField] public float DefaultFadeTimeMultiplier { get; private set; }
 
         [SerializeField] private Image _backgroundFadeImage;
+        [SerializeField] private TMP_Text _pressAnyKeyToStartText;
         [SerializeField] private AnimationCurve _fadeOutCurve;
         [SerializeField] private AnimationCurve _fadeInCurve;
 
         private PlayerInteractions _playerInteractions;
+        private GameManager _gameManager;
+        private PlayerInput _playerInput;
+        private DialogBehaviour _dialogueBehaiviour;
 
         [Inject]
-        private void Construct(FPSCameraController fPSCameraController)
+        private void Construct(FPSCameraController fPSCameraController, GameManager gameManager, PlayerInput playerInput, DialogBehaviour dialogBehaviour)
         {
             _playerInteractions = fPSCameraController.GetComponent<PlayerInteractions>();
+            _gameManager = gameManager;
+            _playerInput = playerInput;
+            _dialogueBehaiviour = dialogBehaviour;
         }
 
         private void OnEnable()
         {
             _playerInteractions.OnInteractableOver += ShowInfoPanal;
             _playerInteractions.OnInteractionReset += HideInfoPanal;
+
+            _gameManager.OnNewGameStateEntered += HandleGameStates;
+
+            //_dialogueBehaiviour.OnDialogueStarted += HideInfoPanal;
         }
 
         private void OnDisable()
         {
             _playerInteractions.OnInteractableOver -= ShowInfoPanal;
             _playerInteractions.OnInteractionReset -= HideInfoPanal;
+
+            _gameManager.OnNewGameStateEntered -= HandleGameStates;
+
+
         }
 
-        private void Start()
+        private void HandleGameStates(GameStates gameStates)
         {
+            switch (gameStates)
+            {
+                case GameStates.WaitForPlayerInput:
+                    _pressAnyKeyToStartText.enabled = true;
+                    _playerInput.OnKeyPressed += WaitToPressKey;
+                    break;
+                case GameStates.DemoStarted:
+
+                    break;
+                case GameStates.GameplayStared:
+                    break;
+                case GameStates.LastCutsceneStarted:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void WaitToPressKey(KeyCode keyCode)
+        {
+            _pressAnyKeyToStartText.enabled = false;
             FadeOut();
+            _gameManager.ChangeGameState(GameStates.DemoStarted);
+            _playerInput.OnKeyPressed -= WaitToPressKey;
         }
 
         private void FadeOut()

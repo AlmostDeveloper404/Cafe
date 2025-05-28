@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e4e045132f4bfb241afc2dc2152de195
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 249962
+  packageName: Node Based Dialog System
+  packageVersion: 1.3.4
+  assetPath: Assets/DialogNodeBasedSystem/Demo Node Graph.asset
+  uploadId: 721422

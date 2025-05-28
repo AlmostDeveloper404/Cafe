@@ -8,14 +8,18 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Events;
 using System;
+using Unity.Properties;
 
 namespace ReaperGS
 {
     public class NPS : MonoBehaviour
     {
+        [SerializeField] private DialogNodeGraph _startDialogue;
+
         [SerializeField] private AnimationCurve _turnHeadCurve;
         [SerializeField] private float _rotateHeadDuration = 1f;
         [SerializeField] private float _walkSpeed = 2f;
+        [SerializeField] private Transform _walkToPlayerPoint;
 
         private NavMeshAgent _navMeshAgent;
         private Animator _animator;
@@ -29,6 +33,7 @@ namespace ReaperGS
 
         private DialogBehaviour _dialogueBehavior;
         private FPSCameraController _fpsCameraController;
+        private GameManager _gameManager;
 
         private Coroutine _headTurnCoroutine;
         private Coroutine _turnCoroutine;
@@ -36,10 +41,11 @@ namespace ReaperGS
         [SerializeField] private Transform _trackHeadTarget;
 
         [Inject]
-        private void Construct(DialogBehaviour dialogBehaviour,FPSCameraController fPSCameraController)
+        private void Construct(DialogBehaviour dialogBehaviour, FPSCameraController fPSCameraController, GameManager gameManager)
         {
             _dialogueBehavior = dialogBehaviour;
             _fpsCameraController = fPSCameraController;
+            _gameManager = gameManager;
         }
 
         private void Awake()
@@ -48,6 +54,16 @@ namespace ReaperGS
             _lookAtIK = GetComponentInChildren<LookAtIK>();
             _navMeshAgent = GetComponent<NavMeshAgent>();
             _animator = GetComponentInChildren<Animator>();
+        }
+
+        private void OnEnable()
+        {
+            _gameManager.OnNewGameStateEntered += HandleGameStates;
+        }
+
+        private void OnDisable()
+        {
+            _gameManager.OnNewGameStateEntered -= HandleGameStates;
         }
 
         private void Start()
@@ -64,6 +80,24 @@ namespace ReaperGS
         private void LateUpdate()
         {
             _lookAtIK.solver.Update();
+        }
+
+        private void HandleGameStates(GameStates gameStates)
+        {
+            switch (gameStates)
+            {
+                case GameStates.WaitForPlayerInput:
+                    break;
+                case GameStates.DemoStarted:
+                    GoToTarget(_walkToPlayerPoint, () => _dialogueBehavior.StartDialog(_startDialogue));
+                    break;
+                case GameStates.GameplayStared:
+                    break;
+                case GameStates.LastCutsceneStarted:
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void TriggerAnimationByHash(int hash)
@@ -92,9 +126,9 @@ namespace ReaperGS
             _navMeshAgent.enabled = isEnabled;
         }
 
-        public void GoToTarget(Transform target)
+        public void GoToTarget(Transform target, Action action)
         {
-            _goToPointState = new NPSGoToPointState(_animator, _navMeshAgent, target, _walkSpeed);
+            _goToPointState = new NPSGoToPointState(_animator, _navMeshAgent, target, _walkSpeed, action);
             ChangeState(_goToPointState);
         }
 

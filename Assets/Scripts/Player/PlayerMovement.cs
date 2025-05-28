@@ -36,9 +36,9 @@ namespace ReaperGS
 
         private PlayerInput _playerInput;
         private FPSCameraController _fpsCameraController;
+        private GameManager _gameManager;
 
         public event Action<MovementState> OnStateChanged;
-        public event Action OnCarLeft;
 
         private MovementState _currentState;
 
@@ -49,10 +49,11 @@ namespace ReaperGS
         private bool _isRotationFreezed = false;
 
         [Inject]
-        private void Construct(PlayerInput playerInput, FPSCameraController fpsCameraController)
+        private void Construct(PlayerInput playerInput, FPSCameraController fpsCameraController, GameManager gameManager)
         {
             _playerInput = playerInput;
             _fpsCameraController = fpsCameraController;
+            _gameManager = gameManager;
         }
 
         private void Awake()
@@ -66,6 +67,8 @@ namespace ReaperGS
             _playerInput.OnRun += ReadRunInput;
 
             _fpsCameraController.OnCameraRotationUpdated += RotateCharacter;
+
+            _gameManager.OnNewGameStateEntered += HandleGameStates;
         }
 
         private void OnDisable()
@@ -74,6 +77,8 @@ namespace ReaperGS
             _playerInput.OnRun -= ReadRunInput;
 
             _fpsCameraController.OnCameraRotationUpdated -= RotateCharacter;
+
+            _gameManager.OnNewGameStateEntered -= HandleGameStates;
         }
 
         private void Update()
@@ -86,10 +91,25 @@ namespace ReaperGS
             MovePlayer();
         }
 
-        public void LeaveCar()
+        private void HandleGameStates(GameStates gameStates)
         {
-            transform.parent = null;
-            OnCarLeft?.Invoke();
+            switch (gameStates)
+            {
+                case GameStates.WaitForPlayerInput:
+                    FreezeMovement(true);
+                    FreezeRotation(true);
+                    break;
+                case GameStates.GameplayStared:
+                    FreezeMovement(false);
+                    FreezeRotation(false);
+                    break;
+                case GameStates.LastCutsceneStarted:
+                    FreezeMovement(true);
+                    FreezeRotation(true);
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void SetPosition(Transform point)
@@ -211,52 +231,6 @@ namespace ReaperGS
             _isRotationFreezed = isRotationFreezed;
         }
 
-
-        public void BlendToPoint(Transform point, Action action)
-        {
-            FreezeMovement(true);
-            FreezeRotation(true);
-            StartCoroutine(MoveToTargetCoroutine(point, action));
-        }
-
-        private IEnumerator MoveToTargetCoroutine(Transform targetPoint, Action action)
-        {
-            _controller.enabled = false;
-
-            float positionThreshold = 0.05f;
-            float rotationThreshold = 1f;
-
-            while (true)
-            {
-                // Перемещение
-                transform.position = Vector3.MoveTowards(
-                    transform.position,
-                    targetPoint.position,
-                    2f * Time.deltaTime
-                );
-
-                // Поворот
-                Quaternion targetRotation = Quaternion.LookRotation(targetPoint.forward);
-                _bodyTransform.rotation = Quaternion.Slerp(
-                    _bodyTransform.rotation,
-                    targetRotation,
-                    5f * Time.deltaTime
-                );
-
-                // Проверка окончания
-                bool reachedPosition = Vector3.Distance(transform.position, targetPoint.position) < positionThreshold;
-                bool reachedRotation = Quaternion.Angle(_bodyTransform.rotation, targetRotation) < rotationThreshold;
-
-                if (reachedPosition && reachedRotation)
-                    break;
-
-                yield return null;
-            }
-
-            _controller.enabled = true;
-            transform.parent = targetPoint;
-            action?.Invoke();
-        }
     }
 }
 

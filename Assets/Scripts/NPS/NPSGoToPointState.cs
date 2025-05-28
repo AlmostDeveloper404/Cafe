@@ -10,16 +10,18 @@ namespace ReaperGS
         private Animator _animator;
         private Transform _targetToReach;
         private float _speed;
+        private Action _reachingPointAction;
 
         //private Action _actionAfterReachingTarget;
 
 
-        public NPSGoToPointState(Animator animator, NavMeshAgent navMeshAgent, Transform target, float speed)
+        public NPSGoToPointState(Animator animator, NavMeshAgent navMeshAgent, Transform target, float speed, Action reachingPointAction)
         {
             _animator = animator;
             _navMesh = navMeshAgent;
             _targetToReach = target;
             _speed = speed;
+            _reachingPointAction = reachingPointAction;
         }
 
         public override void EntryState(NPS nps)
@@ -32,7 +34,7 @@ namespace ReaperGS
 
         public override void ExitState(NPS nps)
         {
-            nps.TurnNPSToTarget(_targetToReach, true, null);
+            //nps.TurnNPSToTarget(_targetToReach, true, null);
         }
 
         public override void UpdateState(NPS nps)
@@ -42,6 +44,7 @@ namespace ReaperGS
             {
                 //_actionAfterReachingTarget?.Invoke();
                 _navMesh.isStopped = true;
+                _reachingPointAction?.Invoke();
                 nps.ChangeToIdle();
             }
         }
