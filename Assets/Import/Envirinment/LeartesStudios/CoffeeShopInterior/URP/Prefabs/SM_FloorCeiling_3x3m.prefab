@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3129374865649151427}
   - component: {fileID: 7675758849033131517}
   - component: {fileID: 7192143718294291554}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SM_Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118,7 +118,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3219309109404693103}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SM_FloorCeiling_3x3m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

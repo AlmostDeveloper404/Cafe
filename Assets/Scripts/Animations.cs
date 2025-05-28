@@ -10,6 +10,9 @@ namespace ReaperGS
     public static class Animations
     {
         public static readonly int CoffeeCup = Animator.StringToHash(GetLengthAnimationStates.CoffeeCup.ToString());
+        public static readonly int IsWalking = Animator.StringToHash("IsWalking");
+        public static readonly int TurnLeft = Animator.StringToHash("TurnLeft");
+        public static readonly int TurnRight = Animator.StringToHash("TurnRight");
 
 
         public static float GetAnimationTime(Animator animator, string animationName)
