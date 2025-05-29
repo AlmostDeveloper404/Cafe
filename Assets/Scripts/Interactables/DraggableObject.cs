@@ -72,14 +72,14 @@ namespace ReaperGS
             _rigidbody.linearVelocity = Vector3.zero;
         }
 
-        public void OnHighlighted()
-        {
-            _outline.enabled = false;
-        }
-
-        public void OnHighlightLost()
+        public void Highlight()
         {
             _outline.enabled = true;
+        }
+
+        public void StopHightlighting()
+        {
+            _outline.enabled = false;
         }
 
         public void SnapToPoint(Transform point)

@@ -9,6 +9,7 @@ using System.Linq;
 using UnityEngine.Events;
 using System;
 using Unity.Properties;
+using UHFPS.Runtime;
 
 namespace ReaperGS
 {
@@ -29,6 +30,7 @@ namespace ReaperGS
         private Animator _animator;
         private LookAtIK _lookAtIK;
         private AimIK _aimIK;
+        private SoundManager _soundManager;
 
         private NPSBase<NPS> _currentState;
         private NPSGoToPointState _goToPointState;
@@ -47,13 +49,17 @@ namespace ReaperGS
 
         [SerializeField] private Transform _trackHeadTarget;
 
+        [Header("Sounds")]
+        [SerializeField] private SoundClip _soldSound;
+
         [Inject]
-        private void Construct(DialogBehaviour dialogBehaviour, FPSCameraController fPSCameraController, GameManager gameManager, UIManager uIManager)
+        private void Construct(DialogBehaviour dialogBehaviour, FPSCameraController fPSCameraController, GameManager gameManager, UIManager uIManager, SoundManager soundManager)
         {
             _dialogueBehavior = dialogBehaviour;
             _fpsCameraController = fPSCameraController;
             _gameManager = gameManager;
             _uiManager = uIManager;
+            _soundManager = soundManager;
         }
 
         private void Awake()
@@ -268,6 +274,7 @@ namespace ReaperGS
                 coffeeCap.ReturnToPool();
                 _uiManager.ShowMoneyEarnedUI(() => _dialogueBehavior.StartDialog(_dialogueFinished));
                 _dialogueBehavior.OnDialogueFinished += TriggerFadingToCutscene;
+                _soundManager.PlaySound2D(_soldSound);
                 TurnToPlayer();
             }
         }

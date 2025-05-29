@@ -7,6 +7,7 @@ using UnityEngine.Events;
 using TMPro;
 using System.Collections.Generic;
 using cherrydev;
+using UHFPS.Runtime;
 
 namespace ReaperGS
 {
@@ -38,13 +39,17 @@ namespace ReaperGS
         private PlayerInput _playerInput;
         private DialogBehaviour _dialogueBehaiviour;
 
+        private SoundManager _soundManager;
+        [SerializeField] private SoundClip _doorbellSound;
+
         [Inject]
-        private void Construct(FPSCameraController fPSCameraController, GameManager gameManager, PlayerInput playerInput, DialogBehaviour dialogBehaviour)
+        private void Construct(FPSCameraController fPSCameraController, GameManager gameManager, PlayerInput playerInput, DialogBehaviour dialogBehaviour, SoundManager soundManager)
         {
             _playerInteractions = fPSCameraController.GetComponent<PlayerInteractions>();
             _gameManager = gameManager;
             _playerInput = playerInput;
             _dialogueBehaiviour = dialogBehaviour;
+            _soundManager = soundManager;
         }
 
         private void OnEnable()
@@ -87,6 +92,7 @@ namespace ReaperGS
                     break;
                 case GameStates.LastCutsceneStarted:
                     _littlelaterText.enabled = true;
+                    HideCursorPoint();
                     StartCoroutine(WaitForSeconds());
                     break;
                 default:
@@ -97,8 +103,9 @@ namespace ReaperGS
         private void WaitToPressKey(KeyCode keyCode)
         {
             _pressAnyKeyToStartText.enabled = false;
-            FadeOut();
+            FadeOut(null, 0.5f);
             _gameManager.ChangeGameState(GameStates.DemoStarted);
+            _soundManager.PlaySound2D(_doorbellSound);
             _playerInput.OnKeyPressed -= WaitToPressKey;
         }
 

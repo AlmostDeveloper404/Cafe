@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 6903059357964904069}
   - component: {fileID: 4882549275565072291}
   - component: {fileID: 4264103565396664695}
+  - component: {fileID: 3224793695371760050}
   m_Layer: 0
   m_Name: SM_MERGED_Ceiling
   m_TagString: Untagged
@@ -118,3 +119,24 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6448184480847499222}
   m_Mesh: {fileID: -3484075337962034594, guid: 362e809171188fd4c874102044e13c7b, type: 3}
+--- !u!65 &3224793695371760050
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6448184480847499222}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 12.000011, y: 9.000005, z: 1.0000104}
+  m_Center: {x: -4.9999995, y: 4.4999995, z: 0.49999875}

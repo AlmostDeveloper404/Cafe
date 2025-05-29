@@ -2,12 +2,14 @@ using System;
 using UnityEngine;
 using Zenject;
 using Unity.Cinemachine;
+using UHFPS.Runtime;
 
 namespace ReaperGS
 {
     public class PlayerInteractions : MonoBehaviour
     {
         private PlayerInput _playerInput;
+        private SoundManager _soundManager;
 
         private CinemachineCamera _cameraController;
 
@@ -30,10 +32,14 @@ namespace ReaperGS
 
         private IDragable _lastHoveredDraggable;
 
+        [Header("Sounds")]
+        [SerializeField] private SoundClip _throwSound;
+
         [Inject]
-        private void Construct(PlayerInput playerInput)
+        private void Construct(PlayerInput playerInput, SoundManager soundManager)
         {
             _playerInput = playerInput;
+            _soundManager = soundManager;
         }
 
         private void Awake()
@@ -72,15 +78,32 @@ namespace ReaperGS
 
                 if (interactable != null)
                 {
+                    if (_lastHoveredDraggable != null && _lastHoveredDraggable != interactable)
+                    {
+                        _lastHoveredDraggable.StopHightlighting();
+                    }
+
+                    _lastHoveredDraggable = interactable;
+                    _lastHoveredDraggable.Highlight();
                     OnInteractableOver?.Invoke(interactable);
                 }
                 else
                 {
+                    if (_lastHoveredDraggable != null)
+                    {
+                        _lastHoveredDraggable.StopHightlighting();
+                        _lastHoveredDraggable = null;
+                    }
                     OnInteractionReset?.Invoke();
                 }
             }
             else
             {
+                if (_lastHoveredDraggable != null)
+                {
+                    _lastHoveredDraggable.StopHightlighting();
+                    _lastHoveredDraggable = null;
+                }
                 OnInteractionReset?.Invoke();
             }
         }
@@ -116,6 +139,7 @@ namespace ReaperGS
             if (_currentDraggable != null)
             {
                 _currentDraggable.Release();
+                UnfreezeInteractions();
                 OnDraggableReleased?.Invoke(_currentDraggable);
 
                 _currentDraggable = null;
@@ -127,8 +151,10 @@ namespace ReaperGS
         {
             if (_currentDraggable != null)
             {
+                _soundManager.PlaySound2D(_throwSound);
                 _currentDraggable.Throw();
                 _currentDraggable = null;
+                UnfreezeInteractions();
                 OnDraggableChanged?.Invoke(_currentDraggable);
             }
         }
@@ -137,6 +163,8 @@ namespace ReaperGS
         {
             _currentDraggable = draggable;
             _currentDraggable.StartDragging();
+            _currentDraggable.StopHightlighting();
+            FreezeInteractions();
             OnDraggableChanged?.Invoke(_currentDraggable);
         }
         public void FreezeInteractions()

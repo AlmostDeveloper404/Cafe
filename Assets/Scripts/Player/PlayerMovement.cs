@@ -4,6 +4,7 @@ using System;
 using System.Security.Cryptography;
 using System.Collections;
 using cherrydev;
+using UHFPS.Runtime;
 
 namespace ReaperGS
 {
@@ -25,6 +26,9 @@ namespace ReaperGS
         [SerializeField] private Transform _cameraTransform;
         [SerializeField] private Transform _playerStartPoint;
 
+        [Header("Sounds")]
+        [SerializeField] private SoundClip[] _stepsClip;
+
         [Header("Movement Settings")]
         [SerializeField, Range(0f, 180f)] private float _maxTurnAngle = 80f;
         private float _moveSpeed;
@@ -40,6 +44,7 @@ namespace ReaperGS
         private FPSCameraController _fpsCameraController;
         private GameManager _gameManager;
         private DialogBehaviour _dialogueBehaiviour;
+        private SoundManager _soundManager;
 
         public event Action<MovementState> OnStateChanged;
 
@@ -51,13 +56,19 @@ namespace ReaperGS
         private bool _isMovementFreezed = false;
         private bool _isRotationFreezed = false;
 
+        [SerializeField] private float _stepIntervalWalk = 0.5f;
+        [SerializeField] private float _stepIntervalRun = 0.35f;
+
+        private float _stepTimer;
+
         [Inject]
-        private void Construct(PlayerInput playerInput, FPSCameraController fpsCameraController, GameManager gameManager, DialogBehaviour dialogBehaviour)
+        private void Construct(PlayerInput playerInput, FPSCameraController fpsCameraController, GameManager gameManager, DialogBehaviour dialogBehaviour, SoundManager soundManager)
         {
             _playerInput = playerInput;
             _fpsCameraController = fpsCameraController;
             _gameManager = gameManager;
             _dialogueBehaiviour = dialogBehaviour;
+            _soundManager = soundManager;
         }
 
         private void Awake()
@@ -104,6 +115,7 @@ namespace ReaperGS
             HandleSprint();
             UpdateCurrentMovementState();
             MovePlayer();
+            HandleStepSounds();
         }
 
         private void InDialogue()
@@ -118,6 +130,23 @@ namespace ReaperGS
             FreezeRotation(false);
         }
 
+        private void HandleStepSounds()
+        {
+            if (!_controller.isGrounded || !_isWalking && !_isRunning) return;
+
+            _stepTimer -= Time.deltaTime;
+
+            if (_stepTimer <= 0f)
+            {
+                // Выбор случайного клипа
+                SoundClip clip = _stepsClip[UnityEngine.Random.Range(0, _stepsClip.Length)];
+
+                _soundManager.PlaySound(clip, transform);
+
+                // Обновляем таймер
+                _stepTimer = _isRunning ? _stepIntervalRun : _stepIntervalWalk;
+            }
+        }
 
         private void HandleGameStates(GameStates gameStates)
         {

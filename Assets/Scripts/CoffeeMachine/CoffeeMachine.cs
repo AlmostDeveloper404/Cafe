@@ -3,12 +3,14 @@ using Zenject;
 using System.Collections;
 using System;
 using Helpers;
+using UHFPS.Runtime;
 
 namespace ReaperGS
 {
     public class CoffeeMachine : MonoBehaviour
     {
         private PlayerInteractions _playerInteractions;
+        private SoundManager _soundManager;
 
         [SerializeField] private Animator _visualCupAnimator;
         [SerializeField] private GameObject _readyCoffeePref;
@@ -27,14 +29,17 @@ namespace ReaperGS
         private CM_LidAttached _lidAttachedState;
 
         private Coroutine _waitForSecondsCoroutine;
+        [Header("Sounds")]
+        [SerializeField] private SoundClip _coffeeSound;
 
 
 
 
         [Inject]
-        private void Construct(FPSCameraController cameraController)
+        private void Construct(FPSCameraController cameraController, SoundManager soundManager)
         {
             _playerInteractions = cameraController.GetComponent<PlayerInteractions>();
+            _soundManager = soundManager;
         }
 
         private void Start()

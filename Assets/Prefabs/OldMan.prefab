@@ -4782,6 +4782,9 @@ MonoBehaviour:
   _screamerStandPoint: {fileID: 248009207614801377}
   LookAtTargetForPlayer: {fileID: 6991122942867798645}
   _trackHeadTarget: {fileID: 2080094006290691265}
+  _soldSound:
+    audioClip: {fileID: 8300000, guid: 4e1ad948876cc1d4a88ae2d9e937012f, type: 3}
+    volume: 0.5
 --- !u!195 &1200307401424206654
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5344,6 +5347,7 @@ GameObject:
   - component: {fileID: 1671572197350914243}
   - component: {fileID: 2307691786511116000}
   - component: {fileID: 3207748730357789853}
+  - component: {fileID: 9079716721405458431}
   m_Layer: 0
   m_Name: OldMan
   m_TagString: Untagged
@@ -5482,6 +5486,27 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     spineTargetOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &9079716721405458431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5750549450660178759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8b89dd19b547e846a6b575a85919171, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stepsClip:
+  - audioClip: {fileID: 8300000, guid: 40214f83c8076a24ea4c33892918e33f, type: 3}
+    volume: 1
+  - audioClip: {fileID: 8300000, guid: febca5fe4d9c6eb49a563ba0e3e79a5b, type: 3}
+    volume: 1
+  - audioClip: {fileID: 8300000, guid: 7229fcb2997017144a14ad7f01a698c6, type: 3}
+    volume: 1
+  - audioClip: {fileID: 8300000, guid: b05eec412b402ef46823efa195d0d486, type: 3}
+    volume: 1
 --- !u!1 &5924408886695304625
 GameObject:
   m_ObjectHideFlags: 0

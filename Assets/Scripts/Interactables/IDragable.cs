@@ -10,7 +10,7 @@ namespace ReaperGS
         void Throw();
         void Drag(Vector3 targetPos);
         void Release();
-        void OnHighlighted();      
-        void OnHighlightLost();    
+        void Highlight();      
+        void StopHightlighting();    
     }
 }
