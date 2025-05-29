@@ -1,3 +1,4 @@
+using UHFPS.Runtime;
 using UnityEngine;
 
 namespace ReaperGS
@@ -6,16 +7,22 @@ namespace ReaperGS
     {
         private ParticleSystem _coffeeStreamParticles;
         private Animator _coffeeCupAnimator;
+        private SoundManager _soundManager;
+        private SoundClip _soundClip;
 
-        public CM_CupInserted(Animator animator, ParticleSystem coffeeStreamParticles)
+        public CM_CupInserted(Animator animator, ParticleSystem coffeeStreamParticles, SoundManager soundManager, SoundClip soundClip)
         {
             _coffeeCupAnimator = animator;
             _coffeeStreamParticles = coffeeStreamParticles;
+            _soundManager = soundManager;
+            _soundClip = soundClip;
         }
 
         public override void EntryState(CoffeeMachine coffeeMachine)
         {
             _coffeeCupAnimator.SetTrigger(Animations.CoffeeCup);
+
+            _soundManager.PlaySound(_soundClip, coffeeMachine.transform);
             _coffeeStreamParticles.Play();
 
 
@@ -26,6 +33,8 @@ namespace ReaperGS
 
         public override void ExitState(CoffeeMachine coffeeMachine)
         {
+
+
             _coffeeStreamParticles.Stop();
         }
 

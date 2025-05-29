@@ -31,6 +31,7 @@ namespace ReaperGS
         private Coroutine _waitForSecondsCoroutine;
         [Header("Sounds")]
         [SerializeField] private SoundClip _coffeeSound;
+        [SerializeField] private SoundClip _placeCupSound;
 
 
 
@@ -50,7 +51,7 @@ namespace ReaperGS
             _defaultState = new CM_DefaultState(_playerInteractions, this, _coffeeCupGhost, _placePoint);
             _awaitLidState = new CM_AwaitLid(_playerInteractions, this, _lidGhost, _placePoint);
             _lidAttachedState = new CM_LidAttached(_readyCoffeePref, _placePoint);
-            _cupInsertedState = new CM_CupInserted(_visualCupAnimator, _coffeeStreamParticles);
+            _cupInsertedState = new CM_CupInserted(_visualCupAnimator, _coffeeStreamParticles, _soundManager, _coffeeSound);
 
             _currentState = _defaultState;
             _currentState?.EntryState(this);

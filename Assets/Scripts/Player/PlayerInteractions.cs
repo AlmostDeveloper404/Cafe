@@ -34,6 +34,7 @@ namespace ReaperGS
 
         [Header("Sounds")]
         [SerializeField] private SoundClip _throwSound;
+        [SerializeField] private SoundClip _pickUpSound;
 
         [Inject]
         private void Construct(PlayerInput playerInput, SoundManager soundManager)
@@ -129,6 +130,7 @@ namespace ReaperGS
                 IDragable interactionObject = raycastHit.collider.GetComponentInParent<IDragable>();
                 if (interactionObject != null)
                 {
+                    _soundManager.PlaySound2D(_pickUpSound);
                     Interact(interactionObject);
                 }
             }
